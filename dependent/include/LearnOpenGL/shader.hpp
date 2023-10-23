@@ -11,7 +11,7 @@
 
 class Shader {
 public:
-    unsigned int ID = 0;
+    unsigned int shaderProgramID = 0;
 
 public:
     Shader(const std::string& vertexPath, const std::string& fragmentPath) {
@@ -60,15 +60,15 @@ public:
 //---------------------------------------------------------------------------------------------------//
 
         // 创建shader程序对象
-        this->ID = glCreateProgram();
+        this->shaderProgramID = glCreateProgram();
 
         // 按顺序将之前编译的shader附加到程序对象上
-        glAttachShader(this->ID, vertexShader);
-        glAttachShader(this->ID, fragmentShader);
-        glLinkProgram(this->ID);
+        glAttachShader(this->shaderProgramID, vertexShader);
+        glAttachShader(this->shaderProgramID, fragmentShader);
+        glLinkProgram(this->shaderProgramID);
 
         // 检查链接错误
-        glGetProgramiv(this->ID, GL_LINK_STATUS, &success);
+        glGetProgramiv(this->shaderProgramID, GL_LINK_STATUS, &success);
         if(!success) {
             glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
             std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
@@ -77,31 +77,34 @@ public:
 
 public:
     void
-    use() const { glUseProgram(this->ID); }
+    use() const { glUseProgram(this->shaderProgramID); }
 
     void
     setBool(const std::string& name, bool value) const {
-        int location = glGetUniformLocation(ID, name.c_str());
+        int location = glGetUniformLocation(shaderProgramID, name.c_str());
         if(location == -1) {
             std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
+            return;
         }
         glUniform1i(location, value);
     }
 
     void
     setInt(const std::string& name, int value) const {
-        int location = glGetUniformLocation(ID, name.c_str());
+        int location = glGetUniformLocation(shaderProgramID, name.c_str());
         if(location == -1) {
             std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
+            return;
         }
         glUniform1i(location, value);
     }
 
     void
     setFloat(const std::string& name, float value) const {
-        int location = glGetUniformLocation(ID, name.c_str());
+        int location = glGetUniformLocation(shaderProgramID, name.c_str());
         if(location == -1) {
             std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
+            return;
         }
         glUniform1f(location, value);
     }
