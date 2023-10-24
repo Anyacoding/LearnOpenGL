@@ -109,6 +109,16 @@ public:
         glUniform1f(location, value);
     }
 
+    void
+    setMatrix4fv(const std::string& name, const float* value) const {
+        int location = glGetUniformLocation(shaderProgramID, name.c_str());
+        if(location == -1) {
+            std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
+            return;
+        }
+        glUniformMatrix4fv(location, 1, GL_FALSE, value);
+    }
+
 private:
     static std::string
     loadShader(const std::string& path) {
