@@ -8,6 +8,9 @@
 #include <glad/glad.h>
 #include <iostream>
 #include <fstream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Shader {
 public:
@@ -110,13 +113,13 @@ public:
     }
 
     void
-    setMatrix4fv(const std::string& name, const float* value) const {
+    setMatrix4fv(const std::string& name, glm::mat4 value) const {
         int location = glGetUniformLocation(shaderProgramID, name.c_str());
         if(location == -1) {
             std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
             return;
         }
-        glUniformMatrix4fv(location, 1, GL_FALSE, value);
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
 
 private:
