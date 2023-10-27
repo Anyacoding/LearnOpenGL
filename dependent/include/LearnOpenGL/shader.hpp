@@ -122,6 +122,16 @@ public:
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
 
+    void
+    setVec3(const std::string& name, glm::vec3 value) const {
+        int location = glGetUniformLocation(shaderProgramID, name.c_str());
+        if(location == -1) {
+            std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
+            return;
+        }
+        glUniform3fv(location, 1, glm::value_ptr(value));
+    }
+
 private:
     static std::string
     loadShader(const std::string& path) {
