@@ -212,7 +212,7 @@ int main() {
 
         trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
         trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-        shader.setMatrix4fv("transform", glm::value_ptr(trans));
+        shader.setMatrix4fv("transform", trans);
         // 重新绑定VAO，来设置正确的索引关系
         glBindVertexArray(VAO);
         // glDrawArrays(GL_TRIANGLES, 0, 3);
