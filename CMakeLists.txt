@@ -15,7 +15,7 @@ link_directories(dependent/lib)
 add_executable(main)
 
 # 通过更改 which 来选择运行对应的文件
-set(which src/2.lighting/2.4.lighting_map/*.cpp)
+set(which src/2.lighting/2.5.3.light_casters_spot/*.cpp)
 
 # 递归搜索文件并自动更新
 file(GLOB_RECURSE source CONFIGURE_DEPENDS  ${which} dependent/src/*.cpp dependent/src/*.c)

@@ -24,6 +24,7 @@ public:
 
         if (data == nullptr) {
             std::cerr << "ERROR IMAGE NOT FOUND" << std::endl;
+            stbi_image_free(data);
             return;
         }
 
@@ -58,6 +59,8 @@ public:
         // 释放纹理src
         stbi_image_free(data);
     }
+
+    ~Texture() { glDeleteTextures(1, &this->textureID); }
 
 public:
     void

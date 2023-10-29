@@ -78,6 +78,8 @@ public:
         }
     }
 
+    ~Shader() { glDeleteShader(this->shaderProgramID); }
+
 public:
     void
     use() const { glUseProgram(this->shaderProgramID); }
