@@ -27,9 +27,9 @@ float lastFrame = 0.0f;
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 // 创建摄像机
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+anya::Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 // 创建io设备
-Device device;
+anya::Device device;
 // path前缀
 std::string prefix = "../src/2.lighting/2.5.3.light_casters_spot";
 
@@ -262,15 +262,15 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    Shader cubeShader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
-    Shader lightShader(prefix + "/VertexShader.glsl", prefix + "/LightFragmentShader.glsl");
+    anya::Shader cubeShader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
+    anya::Shader lightShader(prefix + "/VertexShader.glsl", prefix + "/LightFragmentShader.glsl");
 
 //--------------------------------------------------------------------------------------------------------//
 
     // 读入纹理src
-    Texture texture1(prefix + "/container2.png");
-    Texture texture2(prefix + "/container2_specular.png");
-    Texture texture3(prefix + "/animation.jpg");
+    anya::Texture texture1(prefix + "/container2.png");
+    anya::Texture texture2(prefix + "/container2_specular.png");
+    anya::Texture texture3(prefix + "/animation.jpg");
 
     // 设置纹理单元
     texture1.setTextureUnit(GL_TEXTURE0, "material.diffuse", cubeShader);

@@ -11,6 +11,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <LearnOpenGL/light/pointLight.hpp>
+#include <LearnOpenGL/light/spotLight.hpp>
 
 namespace anya {
 
@@ -90,7 +92,7 @@ namespace anya {
         setBool(const std::string& name, bool value) const {
             int location = glGetUniformLocation(shaderProgramID, name.c_str());
             if(location == -1) {
-                std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
+                std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND " << name << std::endl;
                 return;
             }
             glUniform1i(location, value);
@@ -110,7 +112,7 @@ namespace anya {
         setFloat(const std::string& name, float value) const {
             int location = glGetUniformLocation(shaderProgramID, name.c_str());
             if(location == -1) {
-                std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
+                std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND " << name << std::endl;
                 return;
             }
             glUniform1f(location, value);
@@ -120,7 +122,7 @@ namespace anya {
         setMatrix4fv(const std::string& name, glm::mat4 value) const {
             int location = glGetUniformLocation(shaderProgramID, name.c_str());
             if(location == -1) {
-                std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
+                std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND " << name << std::endl;
                 return;
             }
             glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
@@ -130,10 +132,32 @@ namespace anya {
         setVec3(const std::string& name, glm::vec3 value) const {
             int location = glGetUniformLocation(shaderProgramID, name.c_str());
             if(location == -1) {
-                std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND\n" << std::endl;
+                std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND " << name << std::endl;
                 return;
             }
             glUniform3fv(location, 1, glm::value_ptr(value));
+        }
+
+        void
+        setPointLight(const PointLight& pointLight) const {
+            setVec3("pointLight.position", pointLight.position);
+            setVec3("pointLight.ambient", pointLight.ambient);
+            setVec3("pointLight.diffuse", pointLight.diffuse);
+            setVec3("pointLight.specular", pointLight.specular);
+            setFloat("pointLight.constant", pointLight.constant);
+            setFloat("pointLight.linear", pointLight.linear);
+            setFloat("pointLight.quadratic", pointLight.quadratic);
+        }
+
+        void
+        setSpotLight(const SpotLight& spotLight) const {
+            setVec3("spotLight.position", spotLight.position);
+            setVec3("spotLight.direction", spotLight.direction);
+            setVec3("spotLight.ambient", spotLight.ambient);
+            setVec3("spotLight.diffuse", spotLight.diffuse);
+            setVec3("spotLight.specular", spotLight.specular);
+            setFloat("spotLight.cutOff", spotLight.cutOff);
+            setFloat("spotLight.outerCutOff", spotLight.outerCutOff);
         }
 
     private:

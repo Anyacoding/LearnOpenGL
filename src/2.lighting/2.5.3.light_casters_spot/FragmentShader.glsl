@@ -110,7 +110,7 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
 
     float theta = dot(lightDir, -light.direction);
     float epsilon = light.cutOff - light.outerCutOff;
-    float intensity = clamp((theta - light.cutOff) / epsilon, 0.0f, 1.0f);
+    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0f, 1.0f);
 
     vec2 texcoord = normalize(ViewPos.xyz).xy;
     vec3 spotdiffuse = texture(animation, texcoord.xy / 0.5 + 0.5).rgb * diff;

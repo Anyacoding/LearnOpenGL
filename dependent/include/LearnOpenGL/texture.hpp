@@ -24,7 +24,7 @@ namespace anya {
 
     public:
         explicit Texture(const std::string& path) {
-            stbi_set_flip_vertically_on_load(false);
+            stbi_set_flip_vertically_on_load(true);
             unsigned char *data = stbi_load(path.c_str(), &this->width, &this->height, &this->nrChannels, 0);
 
             if (data == nullptr) {

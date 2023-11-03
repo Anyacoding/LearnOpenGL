@@ -7,16 +7,11 @@
 #include <LearnOpenGL/camera.hpp>
 #include <LearnOpenGL/device.hpp>
 #include <LearnOpenGL/texture.hpp>
-#include <LearnOpenGL/mesh.hpp>
 #include <LearnOpenGL/model.hpp>
-
-
-// stb的库像素数据都是从左到右，从上到下存储
-// 我们要转为通用纹理坐标，左下角为(0,0) , 右上角为(width-1, height-1)
-// include之前必须定义
+#include <LearnOpenGL/light/pointLight.hpp>
+#include <LearnOpenGL/light/spotLight.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 
 // 混合值
 float k = 0.2;
@@ -34,6 +29,150 @@ anya::Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f), g
 anya::Device device;
 // path前缀
 std::string prefix = "../src/3.model_loading";
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void do_movement();
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
+
+int main() {
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // 创建窗口句柄并绑定到当前线程的主上下文
+    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
+    if (window == nullptr) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    // 初始化glad
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+
+    // 设置视口
+    glViewport(0, 0, 800, 600);
+    // 开启深度测试
+    glEnable(GL_DEPTH_TEST);
+
+    // 隐藏鼠标
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // 设置当窗口大小调整时的回调函数
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    // 设置键盘输入的回调函数
+    glfwSetKeyCallback(window, key_callback);
+    // 设置鼠标输入的回调函数
+    glfwSetCursorPosCallback(window, mouse_callback);
+    // 设置滚轮输入的回调函数
+    glfwSetScrollCallback(window, scroll_callback);
+
+//---------------------------------------------------------------------------------------------------------//
+
+    anya::Model nanoModel("../art/model/nanosuit/nanosuit.obj");
+    anya::Model lightModel("../art/model/cube/cube.obj");
+
+//---------------------------------------------------------------------------------------------------------//
+
+    anya::Shader nanoShader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
+    anya::Shader lightShader(prefix + "/VertexShader.glsl", prefix + "/LightFragmentShader.glsl");
+
+    // 激活程序对象并设置uniform
+    nanoShader.use();
+    nanoShader.setVec3("viewPos", camera.position);
+    nanoShader.setFloat("material.shininess", 32.0f);
+
+    // 聚光
+    anya::SpotLight spotLight;
+    spotLight.position = glm::vec3(1.0f);
+    spotLight.direction = glm::vec3(1.0f);
+    spotLight.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
+    spotLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
+    spotLight.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    spotLight.cutOff = glm::cos(glm::radians(3.5f));
+    spotLight.outerCutOff = glm::cos(glm::radians(5.5f));
+
+    // 点光源
+    anya::PointLight pointLight;
+    pointLight.position = glm::vec3(1.0f);
+    pointLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+    pointLight.diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+    pointLight.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+    pointLight.constant = 1.0f;
+    pointLight.linear = 0.09f;
+    pointLight.quadratic = 0.032f;
+
+
+//--------------------------------------------------------------------------------------------------------//
+
+    // 渲染循环
+    while(!glfwWindowShouldClose(window)) {
+        // 渲染指令
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        // 清理每一帧的颜色缓存和深度缓存
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // 计算deltaTime
+        auto currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        // 环绕动作
+        float radius = 2.0f;
+        float camX = std::sin(glfwGetTime()) * radius;
+        float camZ = std::cos(glfwGetTime()) * radius;
+
+        // 聚光
+        nanoShader.use();
+        spotLight.position = camera.position;
+        spotLight.direction = camera.front;
+        nanoShader.setSpotLight(spotLight);
+
+        // 点光源
+        nanoShader.use();
+        pointLight.position = glm::vec3(camX, 0.0f, camZ);
+        nanoShader.setPointLight(pointLight);
+
+        // nano状态设置
+        glm::mat4 projection = camera.getProjectionMatrix();
+        glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -4.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+        nanoShader.setMatrix4fv("model", model);
+        nanoShader.setMatrix4fv("view", view);
+        nanoShader.setMatrix4fv("projection", projection);
+        nanoModel.draw(nanoShader);
+
+        // light状态设置
+        lightShader.use();
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(camX, 0.0f, camZ));
+        model = glm::scale(model, glm::vec3(0.1f));
+        lightShader.setMatrix4fv("model", model);
+        lightShader.setMatrix4fv("view", view);
+        lightShader.setMatrix4fv("projection", projection);
+        lightModel.draw(lightShader);
+
+        // 检查并调用事件，交换缓冲
+        glfwSwapBuffers(window);
+        // 处理输入事件
+        glfwPollEvents();
+        // 移动摄像机
+        do_movement();
+    }
+
+    glfwTerminate();
+    return 0;
+}
 
 
 void
@@ -112,96 +251,4 @@ scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera.fov = camera.fov >= 1.0f && camera.fov <= 90.0f ? camera.fov - yoffset : camera.fov;
     camera.fov = camera.fov <= 1.0f ? 1.0f : camera.fov;
     camera.fov = camera.fov >= 90.0f ? 90.0f : camera.fov;
-}
-
-glm::vec3 pointLightPositions[] = {
-        glm::vec3( 0.7f,  0.2f,  2.0f),
-        glm::vec3( 2.3f, -3.3f, -4.0f),
-        glm::vec3(-4.0f,  2.0f, -12.0f),
-        glm::vec3( 0.0f,  0.0f, -3.0f)
-};
-
-int main() {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    // 创建窗口句柄并绑定到当前线程的主上下文
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", nullptr, nullptr);
-    if (window == nullptr) {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-
-    // 初始化glad
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-
-    // 设置视口
-    glViewport(0, 0, 800, 600);
-    // 开启深度测试
-    glEnable(GL_DEPTH_TEST);
-
-    // 隐藏鼠标
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    // 设置当窗口大小调整时的回调函数
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    // 设置键盘输入的回调函数
-    glfwSetKeyCallback(window, key_callback);
-    // 设置鼠标输入的回调函数
-    glfwSetCursorPosCallback(window, mouse_callback);
-    // 设置滚轮输入的回调函数
-    glfwSetScrollCallback(window, scroll_callback);
-
-//---------------------------------------------------------------------------------------------------------//
-
-    anya::Model nanoModel("../art/model/nanosuit/nanosuit.obj");
-
-//---------------------------------------------------------------------------------------------------------//
-
-    anya::Shader nanoShader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
-
-//--------------------------------------------------------------------------------------------------------//
-
-    // 渲染循环
-    while(!glfwWindowShouldClose(window)) {
-        // 渲染指令
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        // 清理每一帧的颜色缓存和深度缓存
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // 计算deltaTime
-        auto currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        // 状态设置
-        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), 800.0f / 600.0f, 0.1f, 100.0f);
-        glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-
-        nanoShader.setMatrix4fv("model", model);
-        nanoShader.setMatrix4fv("view", view);
-        nanoShader.setMatrix4fv("projection", projection);
-
-        nanoModel.draw(nanoShader);
-
-
-        // 检查并调用事件，交换缓冲
-        glfwSwapBuffers(window);
-        // 处理输入事件
-        glfwPollEvents();
-        // 移动摄像机
-        do_movement();
-    }
-
-    glfwTerminate();
-    return 0;
 }
