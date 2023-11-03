@@ -15,6 +15,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+
 // 混合值
 float k = 0.2;
 // 当前帧与上一帧的时间差
@@ -340,6 +341,7 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        // 聚光
         cubeShader.use();
         cubeShader.setVec3("spotLight.position", camera.position);
         cubeShader.setVec3("spotLight.direction", camera.front);

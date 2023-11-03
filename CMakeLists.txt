@@ -11,11 +11,14 @@ include_directories(dependent/include src)
 # 第三方库目录
 link_directories(dependent/lib)
 
+# 导入assimp
+# find_package(assimp CONFIG REQUIRED)
+
 # 创建目标
 add_executable(main)
 
 # 通过更改 which 来选择运行对应的文件
-set(which src/2.lighting/2.5.3.light_casters_spot/*.cpp)
+set(which src/3.model_loading/*.cpp)
 
 # 递归搜索文件并自动更新
 file(GLOB_RECURSE source CONFIGURE_DEPENDS  ${which} dependent/src/*.cpp dependent/src/*.c)
@@ -24,8 +27,8 @@ file(GLOB_RECURSE source CONFIGURE_DEPENDS  ${which} dependent/src/*.cpp depende
 target_sources(main PRIVATE ${source})
 
 # 链接第三方库
-target_link_libraries(main opengl32 glfw3)
+target_link_libraries(main PRIVATE opengl32 glfw3 assimp)
 
 # 使用Release版本
-#SET(CMAKE_BUILD_TYPE "Release")
+# SET(CMAKE_BUILD_TYPE "Release")
 
