@@ -25,6 +25,9 @@ namespace anya {
 
         // 相机速度
         float speed = 4.5f;
+
+        // 开启手电
+        bool isOpenSpotLight = false;
     public:
         Camera(const glm::vec3& cameraPos,
                const glm::vec3& cameraFront,

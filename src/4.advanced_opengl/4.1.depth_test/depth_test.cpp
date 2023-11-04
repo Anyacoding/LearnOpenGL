@@ -2,16 +2,19 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cmath>
-#include <array>
 #include <LearnOpenGL/shader.hpp>
 #include <LearnOpenGL/camera.hpp>
 #include <LearnOpenGL/device.hpp>
 #include <LearnOpenGL/texture.hpp>
-#include <LearnOpenGL/model.hpp>
-#include <LearnOpenGL/light/pointLight.hpp>
-#include <LearnOpenGL/light/spotLight.hpp>
+#include <array>
+
+// stb的库像素数据都是从左到右，从上到下存储
+// 我们要转为通用纹理坐标，左下角为(0,0) , 右上角为(width-1, height-1)
+// include之前必须定义
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 // 混合值
 float k = 0.2;
@@ -20,17 +23,12 @@ float deltaTime = 0.0f;
 // 上一帧的时间
 float lastFrame = 0.0f;
 
-
-// 光源的位置
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
 // 创建摄像机
 anya::Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 // 创建io设备
 anya::Device device;
 // path前缀
-std::string prefix = "../src/3.model_loading";
-
+std::string prefix = "../src/4.advanced_opengl/4.1.depth_test";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void do_movement();
@@ -38,6 +36,62 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
+
+float cubeVertices[] = {
+        // positions          // texture Coords
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+};
+
+float planeVertices[] = {
+        // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+        5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+        -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+
+        5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+        5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+};
 
 int main() {
     glfwInit();
@@ -64,6 +118,7 @@ int main() {
     glViewport(0, 0, 800, 600);
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     // 隐藏鼠标
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -78,39 +133,51 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    anya::Model nanoModel("../art/model/nanosuit/nanosuit.obj");
-    anya::Model lightModel("../art/model/cube/cube.obj");
+    // cube VAO
+    unsigned int cubeVAO, cubeVBO;
+    glGenVertexArrays(1, &cubeVAO);
+    glBindVertexArray(cubeVAO);
+
+    glGenBuffers(1, &cubeVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
+    // 顶点属性
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    // uv坐标属性
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glBindVertexArray(0);
 
 //---------------------------------------------------------------------------------------------------------//
 
-    anya::Shader nanoShader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
-    anya::Shader lightShader(prefix + "/VertexShader.glsl", prefix + "/LightFragmentShader.glsl");
+    // plane VAO
+    unsigned int planeVAO, planeVBO;
+    glGenVertexArrays(1, &planeVAO);
+    glBindVertexArray(planeVAO);
 
-    // 激活程序对象并设置uniform
-    nanoShader.use();
-    nanoShader.setVec3("viewPos", camera.position);
-    nanoShader.setFloat("material.shininess", 32.0f);
+    glGenBuffers(1, &planeVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
+    // 顶点属性
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    // uv坐标属性
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-    // 聚光
-    anya::SpotLight spotLight;
-    spotLight.position = glm::vec3(1.0f);
-    spotLight.direction = glm::vec3(1.0f);
-    spotLight.ambient = glm::vec3(0.0f, 0.0f, 0.0f);
-    spotLight.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-    spotLight.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    spotLight.cutOff = glm::cos(glm::radians(3.5f));
-    spotLight.outerCutOff = glm::cos(glm::radians(5.5f));
+    glBindVertexArray(0);
 
-    // 点光源
-    anya::PointLight pointLight;
-    pointLight.position = glm::vec3(1.0f);
-    pointLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-    pointLight.diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-    pointLight.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    pointLight.constant = 1.0f;
-    pointLight.linear = 0.09f;
-    pointLight.quadratic = 0.032f;
+//---------------------------------------------------------------------------------------------------------//
 
+    anya::Shader shader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
+
+//--------------------------------------------------------------------------------------------------------//
+
+    // 读入纹理src
+    anya::Texture texture1(prefix + "/get.jpg");
+    anya::Texture texture2(prefix + "/get.png");
 
 //--------------------------------------------------------------------------------------------------------//
 
@@ -119,55 +186,35 @@ int main() {
         // 渲染指令
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         // 清理每一帧的颜色缓存和深度缓存
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        // 计算deltaTime
         auto currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // 环绕动作
-        float radius = 2.0f;
-        float camX = std::sin(glfwGetTime()) * radius;
-        float camZ = std::cos(glfwGetTime()) * radius;
-
-        // 聚光
-        if (camera.isOpenSpotLight) {
-            nanoShader.use();
-            spotLight.position = camera.position;
-            spotLight.direction = camera.front;
-            nanoShader.setSpotLight(spotLight);
-        }
-        else {
-            nanoShader.use();
-            nanoShader.setSpotLight({});
-        }
-
-        // 点光源
-        nanoShader.use();
-        pointLight.position = glm::vec3(camX, 0.0f, camZ);
-        nanoShader.setPointLight(pointLight);
-
-        // nano状态设置
-        glm::mat4 projection = camera.getProjectionMatrix();
-        glm::mat4 view = camera.getViewMatrix();
+        shader.use();
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -4.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
-        nanoShader.setMatrix4fv("model", model);
-        nanoShader.setMatrix4fv("view", view);
-        nanoShader.setMatrix4fv("projection", projection);
-        nanoModel.draw(nanoShader);
-
-        // light状态设置
-        lightShader.use();
+        glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 projection = camera.getProjectionMatrix();
+        shader.setMatrix4fv("view", view);
+        shader.setMatrix4fv("projection", projection);
+        // cubes
+        glBindVertexArray(cubeVAO);
+        shader.setTextureUnit(GL_TEXTURE0, "texture1", texture1);
+        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+        shader.setMatrix4fv("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(camX, 0.0f, camZ));
-        model = glm::scale(model, glm::vec3(0.1f));
-        lightShader.setMatrix4fv("model", model);
-        lightShader.setMatrix4fv("view", view);
-        lightShader.setMatrix4fv("projection", projection);
-        lightModel.draw(lightShader);
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+        shader.setMatrix4fv("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // floor
+        glBindVertexArray(planeVAO);
+        shader.setTextureUnit(GL_TEXTURE0, "texture1", texture2);
+        shader.setMatrix4fv("model", glm::mat4(1.0f));
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
 
         // 检查并调用事件，交换缓冲
         glfwSwapBuffers(window);
@@ -180,6 +227,7 @@ int main() {
     glfwTerminate();
     return 0;
 }
+
 
 
 void
@@ -213,9 +261,6 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     }
     else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
         k = std::max(0.0f, k - 0.1f);
-    }
-    else if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-        camera.isOpenSpotLight ^= true;
     }
 
     if (action == GLFW_PRESS) {

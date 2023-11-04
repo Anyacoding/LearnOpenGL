@@ -13,6 +13,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <LearnOpenGL/light/pointLight.hpp>
 #include <LearnOpenGL/light/spotLight.hpp>
+#include "texture.hpp"
 
 namespace anya {
 
@@ -158,6 +159,14 @@ namespace anya {
             setVec3("spotLight.specular", spotLight.specular);
             setFloat("spotLight.cutOff", spotLight.cutOff);
             setFloat("spotLight.outerCutOff", spotLight.outerCutOff);
+        }
+
+        void
+        setTextureUnit(GLint id, const std::string& uniformName, const Texture& texture) const {
+            glActiveTexture(id);
+            glBindTexture(GL_TEXTURE_2D, texture.textureID);
+            use();
+            setInt(uniformName, id - GL_TEXTURE0);
         }
 
     private:

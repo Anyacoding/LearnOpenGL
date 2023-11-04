@@ -9,6 +9,8 @@
 #include <cstddef>
 #include <string>
 #include "vertex.hpp"
+#include "texture.hpp"
+#include "shader.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -52,7 +54,7 @@ namespace anya {
                     uniformName = "material." + type + std::to_string(specularNr++);
                 }
 
-                this->textures[i].setTextureUnit(GL_TEXTURE0 + i, uniformName, shader);
+                shader.setTextureUnit(GL_TEXTURE0 + i, uniformName, this->textures[i]);
             }
 
             glBindVertexArray(this->VAO);

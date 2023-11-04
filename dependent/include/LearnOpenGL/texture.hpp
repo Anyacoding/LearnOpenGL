@@ -13,7 +13,12 @@
 
 namespace anya {
 
+    class Shader;
+
     class Texture {
+    public:
+         friend Shader;
+
     public:
         std::string type = "diffuse";
 
@@ -66,15 +71,6 @@ namespace anya {
         }
 
         // ~Texture() { glDeleteTextures(1, &this->textureID); }
-
-    public:
-        void
-        setTextureUnit(GLint id, const std::string& uniformName, const Shader& shader) const {
-            glActiveTexture(id);
-            glBindTexture(GL_TEXTURE_2D, this->textureID);
-            shader.use();
-            shader.setInt(uniformName, id - GL_TEXTURE0);
-        }
     };
 
 }

@@ -6,6 +6,8 @@
 #define LEARNOPENGL_MODEL_HPP
 
 #include <vector>
+#include "shader.hpp"
+#include "texture.hpp"
 #include "mesh.hpp"
 
 #include <assimp/Importer.hpp>
@@ -119,7 +121,6 @@ namespace anya {
                 aiString str;
                 mat->GetTexture(type, i, &str);
                 Texture texture(this->directory + "/" + str.C_Str());
-                // Texture texture(this->directory + str.C_Str());
                 texture.type = typeName;
                 textures.push_back(texture);
             }
