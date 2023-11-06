@@ -28,8 +28,8 @@ namespace anya {
         GLint format = GL_RGB;
 
     public:
-        explicit Texture(const std::string& path) {
-            stbi_set_flip_vertically_on_load(true);
+        explicit Texture(const std::string& path, bool flip = true) {
+            stbi_set_flip_vertically_on_load(flip);
             unsigned char *data = stbi_load(path.c_str(), &this->width, &this->height, &this->nrChannels, 0);
 
             if (data == nullptr) {
@@ -71,6 +71,14 @@ namespace anya {
         }
 
         // ~Texture() { glDeleteTextures(1, &this->textureID); }
+
+    public:
+        void
+        setWrapMode(GLint mode) const {
+            glBindTexture(GL_TEXTURE_2D, this->textureID);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
+        }
     };
 
 }

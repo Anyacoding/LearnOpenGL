@@ -100,7 +100,7 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    Shader shader("../src/1.getting_started/1.3.3.shaders_class/VertexShader.glsl", "../src/1.getting_started/1.3.3.shaders_class/FragmentShader.glsl");
+    Shader shader("../src/1.getting_started/1.3.3.shaders_class/mainShader.vert", "../src/1.getting_started/1.3.3.shaders_class/mainShader.frag");
 
 //--------------------------------------------------------------------------------------------------------//
 

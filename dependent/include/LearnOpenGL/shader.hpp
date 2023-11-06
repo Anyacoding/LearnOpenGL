@@ -13,13 +13,16 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <LearnOpenGL/light/pointLight.hpp>
 #include <LearnOpenGL/light/spotLight.hpp>
-#include "texture.hpp"
+#include <LearnOpenGL/light/directionLight.hpp>
+#include <LearnOpenGL/texture.hpp>
+#include <LearnOpenGL/cubeMap.hpp>
 
 namespace anya {
 
     class Shader {
     public:
         unsigned int shaderProgramID = 0;
+        bool isEnableLog = true;
 
     public:
         Shader(const std::string& vertexPath, const std::string& fragmentPath) {
@@ -83,7 +86,7 @@ namespace anya {
             }
         }
 
-        ~Shader() { glDeleteShader(this->shaderProgramID); }
+        // ~Shader() { glDeleteShader(this->shaderProgramID); }
 
     public:
         void
@@ -92,7 +95,7 @@ namespace anya {
         void
         setBool(const std::string& name, bool value) const {
             int location = glGetUniformLocation(shaderProgramID, name.c_str());
-            if(location == -1) {
+            if(location == -1 && isEnableLog) {
                 std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND " << name << std::endl;
                 return;
             }
@@ -102,7 +105,7 @@ namespace anya {
         void
         setInt(const std::string& name, int value) const {
             int location = glGetUniformLocation(shaderProgramID, name.c_str());
-            if(location == -1) {
+            if(location == -1 && isEnableLog) {
                 std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND " << name << std::endl;
                 return;
             }
@@ -112,7 +115,7 @@ namespace anya {
         void
         setFloat(const std::string& name, float value) const {
             int location = glGetUniformLocation(shaderProgramID, name.c_str());
-            if(location == -1) {
+            if(location == -1 && isEnableLog) {
                 std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND " << name << std::endl;
                 return;
             }
@@ -122,7 +125,7 @@ namespace anya {
         void
         setMatrix4fv(const std::string& name, glm::mat4 value) const {
             int location = glGetUniformLocation(shaderProgramID, name.c_str());
-            if(location == -1) {
+            if(location == -1 && isEnableLog) {
                 std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND " << name << std::endl;
                 return;
             }
@@ -132,11 +135,19 @@ namespace anya {
         void
         setVec3(const std::string& name, glm::vec3 value) const {
             int location = glGetUniformLocation(shaderProgramID, name.c_str());
-            if(location == -1) {
+            if(location == -1 && isEnableLog) {
                 std::cout << "ERROR::SHADER::PROGRAM::UNIFORM_NOTFOUND " << name << std::endl;
                 return;
             }
             glUniform3fv(location, 1, glm::value_ptr(value));
+        }
+
+        void
+        setDirLight(const DirLight& dirLight) const {
+            setVec3("dirLight.direction", dirLight.direction);
+            setVec3("dirLight.ambient", dirLight.ambient);
+            setVec3("dirLight.diffuse", dirLight.diffuse);
+            setVec3("dirLight.specular", dirLight.specular);
         }
 
         void
@@ -165,6 +176,14 @@ namespace anya {
         setTextureUnit(GLint id, const std::string& uniformName, const Texture& texture) const {
             glActiveTexture(id);
             glBindTexture(GL_TEXTURE_2D, texture.textureID);
+            use();
+            setInt(uniformName, id - GL_TEXTURE0);
+        }
+
+        void
+        setCubeMapUnit(GLint id, const std::string& uniformName, const CubeMap& cubeMap) const {
+            glActiveTexture(id);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.textureID);
             use();
             setInt(uniformName, id - GL_TEXTURE0);
         }

@@ -262,8 +262,8 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    anya::Shader cubeShader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
-    anya::Shader lightShader(prefix + "/VertexShader.glsl", prefix + "/LightFragmentShader.glsl");
+    anya::Shader cubeShader(prefix + "/mainShader.vert", prefix + "/mainShader.frag");
+    anya::Shader lightShader(prefix + "/mainShader.vert", prefix + "/lightShader.frag");
 
 //--------------------------------------------------------------------------------------------------------//
 

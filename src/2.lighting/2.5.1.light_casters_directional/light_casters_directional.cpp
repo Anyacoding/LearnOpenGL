@@ -255,8 +255,8 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    Shader cubeShader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
-    Shader lightShader(prefix + "/VertexShader.glsl", prefix + "/LightFragmentShader.glsl");
+    Shader cubeShader(prefix + "/mainShader.vert", prefix + "/mainShader.frag");
+    Shader lightShader(prefix + "/mainShader.vert", prefix + "/lightShader.frag");
 
 //--------------------------------------------------------------------------------------------------------//
 

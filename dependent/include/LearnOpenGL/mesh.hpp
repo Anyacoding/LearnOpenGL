@@ -42,6 +42,7 @@ namespace anya {
         draw(const Shader& shader) const {
             std::size_t diffuseNr = 1;
             std::size_t specularNr = 1;
+            std::size_t ambientNr = 1;
 
             for (std::size_t i = 0; i < this->textures.size(); ++i) {
                 std::string uniformName;
@@ -52,6 +53,9 @@ namespace anya {
                 }
                 else if (type == "specular") {
                     uniformName = "material." + type + std::to_string(specularNr++);
+                }
+                else if (type == "ambient") {
+                    uniformName = "material." + type + std::to_string(ambientNr++);
                 }
 
                 shader.setTextureUnit(GL_TEXTURE0 + i, uniformName, this->textures[i]);

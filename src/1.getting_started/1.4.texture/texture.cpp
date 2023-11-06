@@ -119,7 +119,7 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    Shader shader("../src/1.getting_started/1.4.texture/VertexShader.glsl", "../src/1.getting_started/1.4.texture/FragmentShader.glsl");
+    Shader shader("../src/1.getting_started/1.4.texture/mainShader.vert", "../src/1.getting_started/1.4.texture/mainShader.frag");
 
 //--------------------------------------------------------------------------------------------------------//
 

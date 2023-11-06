@@ -171,7 +171,7 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    anya::Shader shader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
+    anya::Shader shader(prefix + "/mainShader.vert", prefix + "/mainShader.frag");
 
 //--------------------------------------------------------------------------------------------------------//
 

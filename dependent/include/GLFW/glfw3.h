@@ -733,7 +733,7 @@ extern "C" {
 /*! @brief The requested OpenGL or OpenGL ES version is not available.
  *
  *  The requested OpenGL or OpenGL ES version (including any requested context
- *  or framebuffer hints) is not available on this machine.
+ *  or 4.5.framebuffer hints) is not available on this machine.
  *
  *  @analysis The machine does not support your requirements.  If your
  *  application is sufficiently flexible, downgrade your requirements and try
@@ -841,9 +841,9 @@ extern "C" {
  *  Cursor centering [window hint](@ref GLFW_CENTER_CURSOR_hint).
  */
 #define GLFW_CENTER_CURSOR          0x00020009
-/*! @brief Window framebuffer transparency hint and attribute
+/*! @brief Window 4.5.framebuffer transparency hint and attribute
  *
- *  Window framebuffer transparency
+ *  Window 4.5.framebuffer transparency
  *  [window hint](@ref GLFW_TRANSPARENT_FRAMEBUFFER_hint) and
  *  [window attribute](@ref GLFW_TRANSPARENT_FRAMEBUFFER_attrib).
  */
@@ -1368,17 +1368,17 @@ typedef void (* GLFWwindowiconifyfun)(GLFWwindow* window, int iconified);
  */
 typedef void (* GLFWwindowmaximizefun)(GLFWwindow* window, int maximized);
 
-/*! @brief The function pointer type for framebuffer size callbacks.
+/*! @brief The function pointer type for 4.5.framebuffer size callbacks.
  *
- *  This is the function pointer type for framebuffer size callbacks.
- *  A framebuffer size callback function has the following signature:
+ *  This is the function pointer type for 4.5.framebuffer size callbacks.
+ *  A 4.5.framebuffer size callback function has the following signature:
  *  @code
  *  void function_name(GLFWwindow* window, int width, int height)
  *  @endcode
  *
- *  @param[in] window The window whose framebuffer was resized.
- *  @param[in] width The new width, in pixels, of the framebuffer.
- *  @param[in] height The new height, in pixels, of the framebuffer.
+ *  @param[in] window The window whose 4.5.framebuffer was resized.
+ *  @param[in] width The new width, in pixels, of the 4.5.framebuffer.
+ *  @param[in] height The new height, in pixels, of the 4.5.framebuffer.
  *
  *  @sa @ref window_fbsize
  *  @sa @ref glfwSetFramebufferSizeCallback
@@ -2547,11 +2547,11 @@ GLFWAPI void glfwWindowHintString(int hint, const char* value);
  *  [make it current](@ref context_current).  For information about the `share`
  *  parameter, see @ref context_sharing.
  *
- *  The created window, framebuffer and context may differ from what you
+ *  The created window, 4.5.framebuffer and context may differ from what you
  *  requested, as not all parameters and hints are
  *  [hard constraints](@ref window_hints_hard).  This includes the size of the
  *  window, especially for full screen windows.  To query the actual attributes
- *  of the created window, framebuffer and context, see @ref
+ *  of the created window, 4.5.framebuffer and context, see @ref
  *  glfwGetWindowAttrib, @ref glfwGetWindowSize and @ref glfwGetFramebufferSize.
  *
  *  To create a full screen window, you need to specify the monitor the window
@@ -2904,7 +2904,7 @@ GLFWAPI void glfwSetWindowPos(GLFWwindow* window, int xpos, int ypos);
  *
  *  This function retrieves the size, in screen coordinates, of the content area
  *  of the specified window.  If you wish to retrieve the size of the
- *  framebuffer of the window in pixels, see @ref glfwGetFramebufferSize.
+ *  4.5.framebuffer of the window in pixels, see @ref glfwGetFramebufferSize.
  *
  *  Any or all of the size arguments may be `NULL`.  If an error occurs, all
  *  non-`NULL` size arguments will be set to zero.
@@ -3024,7 +3024,7 @@ GLFWAPI void glfwSetWindowAspectRatio(GLFWwindow* window, int numer, int denom);
  *  For full screen windows, this function updates the resolution of its desired
  *  video mode and switches to the video mode closest to it, without affecting
  *  the window's context.  As the context is unaffected, the bit depths of the
- *  framebuffer remain unchanged.
+ *  4.5.framebuffer remain unchanged.
  *
  *  If you wish to updateRotate the refresh rate of the desired video mode in addition
  *  to its resolution, see @ref glfwSetWindowMonitor.
@@ -3057,19 +3057,19 @@ GLFWAPI void glfwSetWindowAspectRatio(GLFWwindow* window, int numer, int denom);
  */
 GLFWAPI void glfwSetWindowSize(GLFWwindow* window, int width, int height);
 
-/*! @brief Retrieves the size of the framebuffer of the specified window.
+/*! @brief Retrieves the size of the 4.5.framebuffer of the specified window.
  *
- *  This function retrieves the size, in pixels, of the framebuffer of the
+ *  This function retrieves the size, in pixels, of the 4.5.framebuffer of the
  *  specified window.  If you wish to retrieve the size of the window in screen
  *  coordinates, see @ref glfwGetWindowSize.
  *
  *  Any or all of the size arguments may be `NULL`.  If an error occurs, all
  *  non-`NULL` size arguments will be set to zero.
  *
- *  @param[in] window The window whose framebuffer to query.
- *  @param[out] width Where to store the width, in pixels, of the framebuffer,
+ *  @param[in] window The window whose 4.5.framebuffer to query.
+ *  @param[out] width Where to store the width, in pixels, of the 4.5.framebuffer,
  *  or `NULL`.
- *  @param[out] height Where to store the height, in pixels, of the framebuffer,
+ *  @param[out] height Where to store the height, in pixels, of the 4.5.framebuffer,
  *  or `NULL`.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED and @ref
@@ -3192,7 +3192,7 @@ GLFWAPI float glfwGetWindowOpacity(GLFWwindow* window);
  *
  *  The initial opacity value for newly created windows is one.
  *
- *  A window created with framebuffer transparency may not use whole window
+ *  A window created with 4.5.framebuffer transparency may not use whole window
  *  transparency.  The results of doing this are undefined.
  *
  *  @param[in] window The window to set the opacity for.
@@ -3310,7 +3310,7 @@ GLFWAPI void glfwMaximizeWindow(GLFWwindow* window);
  *
  *  @remark @wayland Because Wayland wants every frame of the desktop to be
  *  complete, this function does not immediately make the window visible.
- *  Instead it will become visible the next time the window framebuffer is
+ *  Instead it will become visible the next time the window 4.5.framebuffer is
  *  updated after this call.
  *
  *  @thread_safety This function must only be called from the main thread.
@@ -3472,7 +3472,7 @@ GLFWAPI GLFWmonitor* glfwGetWindowMonitor(GLFWwindow* window);
  *
  *  @remark The OpenGL or OpenGL ES context will not be destroyed or otherwise
  *  affected by any resizing or mode switching, although you may need to updateRotate
- *  your viewport if the framebuffer size has changed.
+ *  your viewport if the 4.5.framebuffer size has changed.
  *
  *  @remark @wayland The desired window position is ignored, as there is no way
  *  for an application to set this property.
@@ -3852,10 +3852,10 @@ GLFWAPI GLFWwindowiconifyfun glfwSetWindowIconifyCallback(GLFWwindow* window, GL
  */
 GLFWAPI GLFWwindowmaximizefun glfwSetWindowMaximizeCallback(GLFWwindow* window, GLFWwindowmaximizefun callback);
 
-/*! @brief Sets the framebuffer resize callback for the specified window.
+/*! @brief Sets the 4.5.framebuffer resize callback for the specified window.
  *
- *  This function sets the framebuffer resize callback of the specified window,
- *  which is called when the framebuffer of the specified window is resized.
+ *  This function sets the 4.5.framebuffer resize callback of the specified window,
+ *  which is called when the 4.5.framebuffer of the specified window is resized.
  *
  *  @param[in] window The window whose callback to set.
  *  @param[in] callback The new callback, or `NULL` to remove the currently set

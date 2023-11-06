@@ -83,8 +83,8 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    anya::Shader nanoShader(prefix + "/VertexShader.glsl", prefix + "/FragmentShader.glsl");
-    anya::Shader lightShader(prefix + "/VertexShader.glsl", prefix + "/LightFragmentShader.glsl");
+    anya::Shader nanoShader(prefix + "/mainShader.vert", prefix + "/mainShader.frag");
+    anya::Shader lightShader(prefix + "/mainShader.vert", prefix + "/lightShader.frag");
 
     // 激活程序对象并设置uniform
     nanoShader.use();

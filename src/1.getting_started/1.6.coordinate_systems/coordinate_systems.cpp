@@ -158,7 +158,7 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    Shader shader("../src/1.getting_started/1.6.coordinate_systems/VertexShader.glsl", "../src/1.getting_started/1.6.coordinate_systems/FragmentShader.glsl");
+    Shader shader("../src/1.getting_started/1.6.coordinate_systems/mainShader.vert", "../src/1.getting_started/1.6.coordinate_systems/mainShader.frag");
 
 //--------------------------------------------------------------------------------------------------------//
 

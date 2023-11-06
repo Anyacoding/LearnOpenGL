@@ -125,7 +125,7 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    Shader shader("../src/1.getting_started/1.5.transformations/VertexShader.glsl", "../src/1.getting_started/1.5.transformations/FragmentShader.glsl");
+    Shader shader("../src/1.getting_started/1.5.transformations/mainShader.vert", "../src/1.getting_started/1.5.transformations/mainShader.frag");
 
 //--------------------------------------------------------------------------------------------------------//
 

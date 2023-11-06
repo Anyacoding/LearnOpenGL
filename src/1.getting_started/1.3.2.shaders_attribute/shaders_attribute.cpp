@@ -118,7 +118,7 @@ int main() {
 //---------------------------------------------------------------------------------------------------------//
 
     // 读入shader
-    std::string temp = loadShader("../src/1.getting_started/1.3.2.shaders_attribute/VertexShader.glsl");
+    std::string temp = loadShader("../src/1.getting_started/1.3.2.shaders_attribute/mainShader.vert");
     const char* vertexShaderSource = temp.c_str();
 
     // 创建vertex shader对象
@@ -141,7 +141,7 @@ int main() {
 //--------------------------------------------------------------------------------------------------------//
 
     // 读入shader
-    temp = loadShader("../src/1.getting_started/1.3.2.shaders_attribute/FragmentShader.glsl");
+    temp = loadShader("../src/1.getting_started/1.3.2.shaders_attribute/mainShader.frag");
     const char* fragmentShaderSource = temp.c_str();
 
     // 创建fragment shader对象
