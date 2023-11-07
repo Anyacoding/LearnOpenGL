@@ -25,12 +25,12 @@ namespace anya {
         bool isEnableLog = true;
 
     public:
-        Shader(const std::string& vertexPath, const std::string& fragmentPath) {
-            // 读取 shader 源码
+        Shader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "") {
+            // 读取 vertex shader 源码
             std::string temp = loadShader(vertexPath);
             const char* vertexShaderSource = temp.c_str();
 
-            // 创建 shader 对象
+            // 创建 vertex shader 对象
             unsigned int vertexShader;
             vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
@@ -49,11 +49,11 @@ namespace anya {
 
 //--------------------------------------------------------------------------------------------------//
 
-            // 读取 shader 源码
+            // 读取 fragment shader 源码
             temp = loadShader(fragmentPath);
             const char* fragmentShaderSource = temp.c_str();
 
-            // 创建 shader 对象
+            // 创建 fragment shader 对象
             unsigned int fragmentShader;
             fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -70,12 +70,38 @@ namespace anya {
 
 //---------------------------------------------------------------------------------------------------//
 
+            const char* geometryShaderSource = nullptr;
+            unsigned int geometryShader;
+
+            if (!geometryPath.empty()) {
+                // 读取 geometry shader 源码
+                temp = loadShader(geometryPath);
+                geometryShaderSource = temp.c_str();
+
+                // 创建 geometry shader 对象
+                geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+
+                // geometry shader源码附加到geometry shader对象
+                glShaderSource(geometryShader, 1, &geometryShaderSource, nullptr);
+                glCompileShader(geometryShader);
+
+                // 检查geometry shader是否编译成功
+                glGetShaderiv(geometryShader, GL_COMPILE_STATUS, &success);
+                if (!success) {
+                    glGetShaderInfoLog(geometryShader, 512, nullptr, infoLog);
+                    std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+                }
+            }
+
+//---------------------------------------------------------------------------------------------------//
+
             // 创建shader程序对象
             this->shaderProgramID = glCreateProgram();
 
             // 按顺序将之前编译的shader附加到程序对象上
             glAttachShader(this->shaderProgramID, vertexShader);
             glAttachShader(this->shaderProgramID, fragmentShader);
+            if (!geometryPath.empty()) { glAttachShader(this->shaderProgramID, geometryShader); }
             glLinkProgram(this->shaderProgramID);
 
             // 检查链接错误

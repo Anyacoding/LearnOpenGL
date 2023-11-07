@@ -30,7 +30,7 @@ anya::Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f), g
 // 创建io设备
 anya::Device device;
 // path前缀
-std::string prefix = "../src/4.advanced_opengl/4.6.cubemap";
+std::string prefix = "../src/4.advanced_opengl/4.7.advanced_glsl_ubo";
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -203,6 +203,24 @@ int main() {
     pointLight.linear = 0.09f;
     pointLight.quadratic = 0.032f;
 
+//---------------------------------------------------------------------------------------------------------//
+
+    // 创建ubo并绑定
+    unsigned int uboMatrices;
+    glGenBuffers(1, &uboMatrices);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+    // 开辟内存并绑定ubo到指定的索引
+    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    // 绑定uniform块到特定的索引
+    unsigned int uniformBlockIndexNano    = glGetUniformBlockIndex(nanoShader.shaderProgramID, "Matrices");
+    unsigned int uniformBlockIndexLight   = glGetUniformBlockIndex(lightShader.shaderProgramID, "Matrices");
+    glUniformBlockBinding(nanoShader.shaderProgramID, uniformBlockIndexNano, 0);
+    glUniformBlockBinding(lightShader.shaderProgramID, uniformBlockIndexLight, 0);
+
+
 //--------------------------------------------------------------------------------------------------------//
 
     // 渲染循环
@@ -221,6 +239,11 @@ int main() {
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 model = glm::mat4(1.0f);
 
+        // 填充ubo
+        glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         // 环绕动作
         float radius = 2.0f;
@@ -249,8 +272,8 @@ int main() {
         model = glm::translate(model, glm::vec3(0.0f, -4.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
         nanoShader.setMatrix4fv("model", model);
-        nanoShader.setMatrix4fv("view", view);
-        nanoShader.setMatrix4fv("projection", projection);
+        // nanoShader.setMatrix4fv("view", view);
+        // nanoShader.setMatrix4fv("projection", projection);
         nanoShader.setVec3("cameraPos", camera.position);
         nanoShader.setCubeMapUnit(GL_TEXTURE3, "skybox", skybox);
         nanoModel.draw(nanoShader);
@@ -261,8 +284,8 @@ int main() {
         model = glm::translate(model, glm::vec3(camX, 0.0f, camZ));
         model = glm::scale(model, glm::vec3(0.1f));
         lightShader.setMatrix4fv("model", model);
-        lightShader.setMatrix4fv("view", view);
-        lightShader.setMatrix4fv("projection", projection);
+        // lightShader.setMatrix4fv("view", view);
+        // lightShader.setMatrix4fv("projection", projection);
         lightModel.draw(lightShader);
 
         // skybox状态设置

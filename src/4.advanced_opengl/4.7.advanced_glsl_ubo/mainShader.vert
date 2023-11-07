@@ -8,10 +8,11 @@ out vec3 Normal;
 out vec3 FragPos;
 
 uniform mat4 model;
-uniform mat4 projection;
-uniform mat4 view;
 
-
+layout (std140) uniform Matrices {
+    mat4 projection;
+    mat4 view;
+};
 
 void main()  {
     FragPos = vec3(model * vec4(aPos, 1.0));
