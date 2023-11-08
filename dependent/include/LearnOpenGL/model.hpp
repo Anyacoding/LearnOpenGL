@@ -17,7 +17,7 @@
 namespace anya {
 
     class Model {
-    private:
+    public:
         std::vector<Mesh> meshes;
         std::string directory;
 

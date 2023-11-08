@@ -23,7 +23,7 @@ namespace anya {
         std::vector<unsigned int> indexes;
         std::vector<Texture> textures;
 
-    private:
+    public:
         unsigned int VAO = 0, VBO = 0, EBO = 0;
 
     public:
