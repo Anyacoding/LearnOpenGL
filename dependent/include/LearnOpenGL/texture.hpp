@@ -22,7 +22,7 @@ namespace anya {
     public:
         std::string type = "diffuse";
 
-    private:
+    public:
         int width = 800, height = 600, nrChannels = 3;
         unsigned int textureID = -1;
         GLint format = GL_RGB;

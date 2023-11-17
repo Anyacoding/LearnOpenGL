@@ -262,8 +262,8 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    anya::Shader cubeShader(prefix + "/mainShader.vert", prefix + "/mainShader.frag");
-    anya::Shader lightShader(prefix + "/mainShader.vert", prefix + "/lightShader.frag");
+    anya::Shader cubeShader(prefix + "/VertexShader.glsl", prefix + "//FragmentShader.glsl");
+    anya::Shader lightShader(prefix + "/VertexShader.glsl", prefix + "/LightFragmentShader.glsl");
 
 //--------------------------------------------------------------------------------------------------------//
 
@@ -273,9 +273,10 @@ int main() {
     anya::Texture texture3(prefix + "/animation.jpg");
 
     // 设置纹理单元
-    texture1.setTextureUnit(GL_TEXTURE0, "material.diffuse", cubeShader);
-    texture2.setTextureUnit(GL_TEXTURE1, "material.specular", cubeShader);
-    texture3.setTextureUnit(GL_TEXTURE2, "animation", cubeShader);
+    cubeShader.use();
+    cubeShader.setTextureUnit(GL_TEXTURE0, "material.diffuse", texture1);
+    cubeShader.setTextureUnit(GL_TEXTURE1, "material.specular", texture2);
+    cubeShader.setTextureUnit(GL_TEXTURE2, "animation", texture3);
 
 //---------------------------------------------------------------------------------------------------------//
 

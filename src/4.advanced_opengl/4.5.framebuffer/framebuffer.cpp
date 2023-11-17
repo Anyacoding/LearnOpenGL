@@ -207,7 +207,7 @@ int main() {
 
 //---------------------------------------------------------------------------------------------------------//
 
-    anya::Shader screenShader(prefix + "/ScreenVertexShader.glsl", prefix + "/ScreenFragmentShader.glsl");
+    anya::Shader screenShader(prefix + "/simpleDepthShader.vert", prefix + "/simpleDepthShader.frag");
     anya::Shader shader(prefix + "/mainShader.vert", prefix + "/mainShader.frag");
 
 //--------------------------------------------------------------------------------------------------------//
