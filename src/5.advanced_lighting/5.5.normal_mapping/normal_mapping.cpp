@@ -28,7 +28,7 @@ float deltaTime = 0.0f;
 // 上一帧的时间
 float lastFrame = 0.0f;
 // 光照位置
-glm::vec3 lightPos(0.5f, 1.0f, 0.3f);
+glm::vec3 lightPos(0.0f, 1.0f, 0.5f);
 
 // 创建摄像机
 anya::Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -91,12 +91,19 @@ int main() {
 //---------------------------------------------------------------------------------------------------------//
 
     anya::Shader mainShader(prefix + "/mainShader.vert", prefix + "/mainShader.frag");
+    anya::Shader cyborgShader(prefix + "/cyborgShader.vert", prefix + "/cyborgShader.frag");
+
+//---------------------------------------------------------------------------------------------------------//
+
+    anya::Model cyborgModel("../art/model/cyborg/cyborg.obj");
 
 //--------------------------------------------------------------------------------------------------------//
 
     // 读入纹理src
     anya::Texture diffuseTexture(prefix + "/brickwall.jpg");
     anya::Texture normalTexture(prefix + "/brickwall_normal.jpg");
+
+    anya::Texture cyborgNormalTexture("../art/model/cyborg/cyborg_normal.png");
 
 //--------------------------------------------------------------------------------------------------------//
 
@@ -118,13 +125,27 @@ int main() {
         mainShader.setMatrix4fv("view", view);
         mainShader.setMatrix4fv("projection", projection);
         glm::mat4 model;
-        model = glm::rotate(model, 180.0f, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+        //model = glm::rotate(model, 180.0f, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
         mainShader.setMatrix4fv("model", model);
         mainShader.setVec3("lightPos", lightPos);
         mainShader.setVec3("viewPos", camera.position);
         mainShader.setTextureUnit(GL_TEXTURE0, "diffuseMap", diffuseTexture);
         mainShader.setTextureUnit(GL_TEXTURE1, "normalMap", normalTexture);
         renderQuad();
+
+
+        cyborgShader.use();
+        cyborgShader.setMatrix4fv("view", view);
+        cyborgShader.setMatrix4fv("projection", projection);
+        model = glm::mat4(1.0);
+        model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.3f));
+        model = glm::scale(model, {0.5, 0.5, 0.5});
+        //model = glm::rotate(model, 0.25f, glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
+        cyborgShader.setMatrix4fv("model", model);
+        cyborgShader.setVec3("lightPos", lightPos);
+        cyborgShader.setVec3("viewPos", camera.position);
+        cyborgShader.setTextureUnit(GL_TEXTURE3, "normalMap", cyborgNormalTexture);
+        cyborgModel.draw(cyborgShader);
 
         // 检查并调用事件，交换缓冲
         glfwSwapBuffers(window);

@@ -16,7 +16,7 @@ link_directories(dependent/lib)
 add_executable(main)
 
 # 通过更改 which 来选择运行对应的文件
-set(which src/6.pbr/6.1.2.lighting_texture/*.cpp)
+set(which src/6.pbr/6.3.ibl_specular/*.cpp)
 
 # 递归搜索文件并自动更新
 file(GLOB_RECURSE source CONFIGURE_DEPENDS  ${which} dependent/src/*.cpp dependent/src/*.c)

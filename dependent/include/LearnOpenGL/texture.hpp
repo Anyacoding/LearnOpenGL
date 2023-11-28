@@ -28,7 +28,19 @@ namespace anya {
         GLint format = GL_RGB;
 
     public:
-        explicit Texture(const std::string& path, bool flip = true) {
+        explicit Texture(const std::string& path, bool flip = true, bool hdr = false) {
+            if (hdr) {
+                load_hdr(path, flip);
+            }
+            else {
+                load_ldr(path, flip);
+            }
+        }
+
+        // ~Texture() { glDeleteTextures(1, &this->textureID); }
+
+    public:
+        void load_ldr(const std::string& path, bool flip = true) {
             stbi_set_flip_vertically_on_load(flip);
             unsigned char *data = stbi_load(path.c_str(), &this->width, &this->height, &this->nrChannels, 0);
 
@@ -62,7 +74,7 @@ namespace anya {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-            // 载入纹理src并生成mipmap, 注意此图的通道是RGBA
+            // 载入纹理src并生成mipmap
             glTexImage2D(GL_TEXTURE_2D, 0, this->format, this->width, this->height, 0, this->format, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -70,9 +82,47 @@ namespace anya {
             stbi_image_free(data);
         }
 
-        // ~Texture() { glDeleteTextures(1, &this->textureID); }
+        void load_hdr(const std::string& path, bool flip = true) {
+            stbi_set_flip_vertically_on_load(flip);
+            float* data = stbi_loadf(path.c_str(), &this->width, &this->height, &this->nrChannels, 0);
 
-    public:
+            if (data == nullptr) {
+                std::cerr << "ERROR IMAGE "  << path << " NOT FOUND" << std::endl;
+                stbi_image_free(data);
+                return;
+            }
+
+            switch (this->nrChannels) {
+                case 1: {
+                    this->format = GL_RED;
+                    break;
+                }
+                case 3: {
+                    this->format = GL_RGB;
+                    break;
+                }
+                case 4: {
+                    this->format = GL_RGBA;
+                    break;
+                }
+            }
+
+            glGenTextures(1, &this->textureID);
+            glBindTexture(GL_TEXTURE_2D, this->textureID);
+
+            // 为当前绑定的纹理对象设置环绕、过滤方式
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            // 载入纹理src并生成mipmap
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, this->width, this->height, 0, this->format, GL_FLOAT, data);
+
+            // 释放纹理src
+            stbi_image_free(data);
+        }
+
         void
         setWrapMode(GLint mode) const {
             glBindTexture(GL_TEXTURE_2D, this->textureID);
